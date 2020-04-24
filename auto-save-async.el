@@ -5,8 +5,8 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: files
 
-;; Version: 0.0.0
 ;; Package-Requires: ((async "1.9.4"))
+;; Version: 0.0.1
 
 ;; URL: https://github.com/ROCKTAKEY/auto-save-async
 
@@ -34,10 +34,14 @@
   "Group for auto-save-async."
   :group 'files)
 
-(defcustom auto-save-async-interval 5
+(defcustom auto-save-async-interval 300
   ""
   :group 'auto-save-async
   :type 'number)
+
+(defcustom auto-save-async-timeout 5
+  ""
+  :group 'auto-save-async)
 
 (defcustom auto-save-async-file-name-transforms
   auto-save-file-name-transforms
@@ -50,6 +54,8 @@ is used internally."
                        (boolean :tag "Uniquify"))))
 
 (defvar auto-save-async--timer nil)
+
+(defvar auto-save-async--counter 0)
 
 (defvar-local auto-save-async-buffer-file-name nil)
 
@@ -79,6 +85,16 @@ is used internally."
             (setq buffer-saved-size ,(length str)))
           (message "Auto save async done. %S" result))))))
 
+(defun auto-save-async--count-and-save ()
+  (when (>= (setq auto-save-async--counter (1+ auto-save-async--counter))
+            auto-save-async-timeout)
+    (auto-save-async-save)
+    (setq auto-save-async--counter 0)))
+
+(defun auto-save-async--switch-buffer (before _)
+  (with-current-buffer before
+    (auto-save-async-save)))
+
 (define-minor-mode auto-save-async-mode
   "Auto save asynchronously."
   :lighter "AS-async"
@@ -91,8 +107,9 @@ is used internally."
                 (make-auto-save-file-name)))
         (setq
          auto-save-async-timer
-         (run-with-idle-timer auto-save-async-interval #'auto-save-async-save)))
     (cancel-timer auto-save-async-timer)))
+         (run-with-idle-timer auto-save-async-timeout #'auto-save-async-save))
+        (add-hook 'post-command-hook #'auto-save-async--count-and-save))
 
 (define-globalized-minor-mode global-auto-save-async-mode
   auto-save-async-mode
