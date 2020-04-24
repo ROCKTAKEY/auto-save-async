@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: files
 
-;; Version: 0.0.6
+;; Version: 0.0.7
 ;; Package-Requires: ((async "1.9.4") (switch-buffer-functions "0.0.1"))
 
 ;; URL: https://github.com/ROCKTAKEY/auto-save-async
@@ -95,8 +95,9 @@ is used internally."
           (message "Auto save async done. %S" result))))))
 
 (defun auto-save-async--count-and-save ()
-  (when (>= (setq auto-save-async--counter (1+ auto-save-async--counter))
-            auto-save-async-timeout)
+  (when (and (not (eq auto-save-async-interval 0))
+         (>= (setq auto-save-async--counter (1+ auto-save-async--counter))
+            auto-save-async-interval))
     (auto-save-async-save)
     (setq auto-save-async--counter 0)))
 
