@@ -41,7 +41,7 @@
   :type 'integerp)
 
 (defcustom auto-save-async-timeout 5
-  "Number of seconds idle ime before auto-save-async."
+  "Number of seconds idle time before auto-save-async.
   :group 'auto-save-async
   :type 'numberp)
 
