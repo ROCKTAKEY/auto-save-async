@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: files
 
-;; Version: 0.0.7
+;; Version: 1.0.0
 ;; Package-Requires: ((async "1.9.4") (switch-buffer-functions "0.0.1"))
 
 ;; URL: https://github.com/ROCKTAKEY/auto-save-async
@@ -24,7 +24,31 @@
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-
+;;
+;;; Auto save  asynchronously.
+;;   Auto save asynchronously, with idle-timer, counting input events,
+;;   and switching buffer.
+;;; How to Use?
+;;   Install and eval those:
+;;
+;;   (require 'auto-save-async)
+;;   (auto-save-async-mode 1)
+;;
+;;   Now each buffer is auto-saved asynchronously.
+;;
+;;; Customs
+;;;; ~auto-save-async-interval~
+;;    Number of input events between auto-save-async.
+;;    Zero means auto-save-async do not run by input events' number.
+;;;; ~auto-save-async-timeout~
+;;    Number of seconds idle time before auto-save-async.
+;;    Zero means auto save-async do not run by idle time.
+;;;; ~auto-save-async-file-name-transforms~
+;;    File name transformer on auto-save-async.
+;;    See `auto-save-file-name-transforms', because `make-auto-save-file-name'
+;;    is used internally.
+;;;; ~auto-save-async-save-when-switch-buffer~
+;;    Auto save asynchronously when switching buffer or not.
 ;;
 
 ;;; Code:
@@ -62,12 +86,16 @@ is used internally."
   :group 'auto-save-async
   :type 'boolean)
 
+
+;; Inner vars
 (defvar auto-save-async--timer nil)
 
 (defvar auto-save-async--counter 0)
 
 (defvar-local auto-save-async--buffer-file-name nil)
 
+
+;;;###autoload
 (defun auto-save-async-save ()
   "Auto save asynchronously."
   (interactive)
@@ -94,6 +122,7 @@ is used internally."
             (setq buffer-saved-size ,(length str)))
           (message "Auto save async done. %S" result))))))
 
+;; Inner functions
 (defun auto-save-async--count-and-save ()
   (when (and (not (eq auto-save-async-interval 0))
          (>= (setq auto-save-async--counter (1+ auto-save-async--counter))
@@ -106,6 +135,8 @@ is used internally."
    (with-current-buffer before
     (auto-save-async-save))))
 
+
+;;;###autoload
 (define-minor-mode auto-save-async-mode
   "Auto save asynchronously."
   :lighter "AS-async"

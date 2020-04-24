@@ -2,7 +2,28 @@
 [[file:LICENSE][https://img.shields.io/github/license/ROCKTAKEY/auto-save-async.svg?style=flat-square]]
 [[https://github.com/ROCKTAKEY/auto-save-async/actions][https://img.shields.io/github/workflow/status/ROCKTAKEY/auto-save-async/CI/master.svg?style=flat-square]]
 * Auto save  asynchronously.
-
+  Auto save asynchronously, with idle-timer, counting input events, and switching buffer.
 * How to Use?
+  Install and eval those:
+  #+BEGIN_SRC emacs-lisp -n
+  (require 'auto-save-async)
+  (auto-save-async-mode 1)
+  #+END_SRC
+  Now each buffer is auto-saved asynchronously.
+
+* Customs
+** ~auto-save-async-interval~
+   Number of input events between auto-save-async.
+   Zero means auto-save-async do not run by input events' number.
+** ~auto-save-async-timeout~
+   Number of seconds idle time before auto-save-async.
+   Zero means auto save-async do not run by idle time.
+** ~auto-save-async-file-name-transforms~
+   File name transformer on auto-save-async.
+   See `auto-save-file-name-transforms', because `make-auto-save-file-name'
+   is used internally.
+** ~auto-save-async-save-when-switch-buffer~
+   Auto save asynchronously when switching buffer or not.
+
 * License
   This package is licensed by GPLv3. See [[file:LICENSE][LICENSE]].
