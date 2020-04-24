@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: files
 
-;; Version: 0.0.5
+;; Version: 0.0.6
 ;; Package-Requires: ((async "1.9.4") (switch-buffer-functions "0.0.1"))
 
 ;; URL: https://github.com/ROCKTAKEY/auto-save-async
@@ -36,12 +36,14 @@
   :group 'files)
 
 (defcustom auto-save-async-interval 300
-  "Number of input events between auto-save-async."
+  "Number of input events between auto-save-async.
+Zero means auto-save-async do not run by input events' number."
   :group 'auto-save-async
   :type 'integerp)
 
 (defcustom auto-save-async-timeout 5
   "Number of seconds idle time before auto-save-async.
+Zero means auto save-async do not run by idle time."
   :group 'auto-save-async
   :type 'numberp)
 
@@ -54,6 +56,11 @@ is used internally."
   :type '(repeat (list (string :tag "Regexp")
                        (string :tag "Replacement")
                        (boolean :tag "Uniquify"))))
+
+(defcustom auto-save-async-save-when-switch-buffer t
+  "Auto save async when switch buffer or not."
+  :group 'auto-save-async
+  :type 'boolean)
 
 (defvar auto-save-async--timer nil)
 
@@ -94,8 +101,9 @@ is used internally."
     (setq auto-save-async--counter 0)))
 
 (defun auto-save-async--switch-buffer (before _)
-  (with-current-buffer before
-    (auto-save-async-save)))
+  (when auto-save-async-save-when-switch-buffer
+   (with-current-buffer before
+    (auto-save-async-save))))
 
 (define-minor-mode auto-save-async-mode
   "Auto save asynchronously."
@@ -111,10 +119,11 @@ is used internally."
                   (make-auto-save-file-name))))
         (setq
          auto-save-async--timer
-         (run-with-idle-timer auto-save-async-timeout #'auto-save-async-save))
+         (unless (eq 0 auto-save-async-timeout)
+          (run-with-idle-timer auto-save-async-timeout #'auto-save-async-save)))
         (add-hook 'post-command-hook #'auto-save-async--count-and-save)
         (add-hook 'switch-buffer-functions  #'auto-save-async--switch-buffer))
-    (cancel-timer auto-save-async--timer)
+    (unless auto-save-async--timer (cancel-timer auto-save-async--timer))
     (setq auto-save-async--timer nil)
     (remove-hook 'post-command-hook #'auto-save-async--count-and-save)
     (remove-hook 'switch-buffer-functions  #'auto-save-async--switch-buffer)))
