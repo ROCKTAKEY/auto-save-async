@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: files
 
-;; Version: 0.0.3
+;; Version: 0.0.4
 ;; Package-Requires: ((async "1.9.4") (switch-buffer-functions "0.0.1"))
 
 ;; URL: https://github.com/ROCKTAKEY/auto-save-async
@@ -36,13 +36,14 @@
   :group 'files)
 
 (defcustom auto-save-async-interval 300
-  ""
+  "Number of input events between auto-save-async."
   :group 'auto-save-async
-  :type 'number)
+  :type 'integerp)
 
 (defcustom auto-save-async-timeout 5
-  ""
-  :group 'auto-save-async)
+  "Number of seconds idle ime before auto-save-async."
+  :group 'auto-save-async
+  :type 'numberp)
 
 (defcustom auto-save-async-file-name-transforms
   auto-save-file-name-transforms
