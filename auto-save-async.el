@@ -1,0 +1,103 @@
+;;; auto-save-async.el --- Auto save asynchronously.  -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2020  ROCKTAKEY
+
+;; Author: ROCKTAKEY <rocktakey@gmail.com>
+;; Keywords: files
+
+;; Version: 0.0.0
+;; Package-Requires: ((async "1.9.4"))
+
+;; URL: https://github.com/ROCKTAKEY/auto-save-async
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;;
+
+;;; Code:
+(require 'async)
+
+(defgroup auto-save-async nil
+  "Group for auto-save-async."
+  :group 'files)
+
+(defcustom auto-save-async-interval 5
+  ""
+  :group 'auto-save-async
+  :type 'number)
+
+(defcustom auto-save-async-file-name-transforms
+  auto-save-file-name-transforms
+  "File name transformer on auto-save-async.
+See `auto-save-file-name-transforms', because `make-auto-save-file-name'
+is used internally."
+  :group 'auto-save-async
+  :type '(repeat (list (string :tag "Regexp")
+                       (string :tag "Replacement")
+                       (boolean :tag "Uniquify"))))
+
+(defvar auto-save-async--timer nil)
+
+(defvar-local auto-save-async-buffer-file-name nil)
+
+(defun auto-save-async-save ()
+  "Auto save asynchronously."
+  (interactive)
+  (let ((str
+         (save-restriction
+           (widen)
+           (save-excursion
+             (unless (or
+                      (not (buffer-file-name))
+                      (= (point-max) (point-min))
+                      find-file-literally
+                      buffer-read-only
+                      (null auto-save-async-buffer-file-name))
+               (buffer-substring-no-properties (point-max) (point-min)))))))
+    (when str
+      (message "Auto save async...")
+      (async-start
+       `(lambda ()
+          (with-temp-buffer
+            (insert ,str)
+            (write-file ,(eval auto-save-async-buffer-file-name))))
+       `(lambda (result)
+          (with-current-buffer ,(current-buffer)
+            (setq buffer-saved-size ,(length str)))
+          (message "Auto save async done. %S" result))))))
+
+(define-minor-mode auto-save-async-mode
+  "Auto save asynchronously."
+  :lighter "AS-async"
+  :group 'auto-save-async
+  (if auto-save-async-mode
+      (let ((lexical-binding nil))
+        (setq auto-save-async-buffer-file-name
+              (let ((auto-save-file-name-transforms
+                     auto-save-async-file-name-transforms))
+                (make-auto-save-file-name)))
+        (setq
+         auto-save-async-timer
+         (run-with-idle-timer auto-save-async-interval #'auto-save-async-save)))
+    (cancel-timer auto-save-async-timer)))
+
+(define-globalized-minor-mode global-auto-save-async-mode
+  auto-save-async-mode
+  (auto-save-async-mode +1)
+  :group 'auto-save-async)
+
+(provide 'auto-save-async)
+;;; auto-save-async.el ends here
