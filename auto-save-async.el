@@ -5,8 +5,8 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: files
 
-;; Package-Requires: ((async "1.9.4"))
-;; Version: 0.0.1
+;; Version: 0.0.2
+;; Package-Requires: ((async "1.9.4") (switch-buffer-functions "0.0.1"))
 
 ;; URL: https://github.com/ROCKTAKEY/auto-save-async
 
@@ -29,6 +29,7 @@
 
 ;;; Code:
 (require 'async)
+(require 'switch-buffer-functions)
 
 (defgroup auto-save-async nil
   "Group for auto-save-async."
@@ -100,16 +101,21 @@ is used internally."
   :lighter "AS-async"
   :group 'auto-save-async
   (if auto-save-async-mode
-      (let ((lexical-binding nil))
-        (setq auto-save-async-buffer-file-name
-              (let ((auto-save-file-name-transforms
-                     auto-save-async-file-name-transforms))
-                (make-auto-save-file-name)))
+      (progn
+        (let* ((lexical-binding nil))
+          (setq auto-save-async-buffer-file-name
+                (let ((auto-save-file-name-transforms
+                       auto-save-async-file-name-transforms))
+                  (make-auto-save-file-name))))
         (setq
-         auto-save-async-timer
-    (cancel-timer auto-save-async-timer)))
+         auto-save-async--timer
          (run-with-idle-timer auto-save-async-timeout #'auto-save-async-save))
-        (add-hook 'post-command-hook #'auto-save-async--count-and-save))
+        (add-hook 'post-command-hook #'auto-save-async--count-and-save)
+        (add-hook 'switch-buffer-functions  #'auto-save-async--switch-buffer))
+    (cancel-timer auto-save-async--timer)
+    (setq auto-save-async--timer nil)
+    (remove-hook 'post-command-hook #'auto-save-async--count-and-save)
+    (remove-hook 'switch-buffer-functions  #'auto-save-async--switch-buffer)))
 
 (define-globalized-minor-mode global-auto-save-async-mode
   auto-save-async-mode
