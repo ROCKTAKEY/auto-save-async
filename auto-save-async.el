@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: files
 
-;; Version: 0.0.4
+;; Version: 0.0.5
 ;; Package-Requires: ((async "1.9.4") (switch-buffer-functions "0.0.1"))
 
 ;; URL: https://github.com/ROCKTAKEY/auto-save-async
@@ -59,7 +59,7 @@ is used internally."
 
 (defvar auto-save-async--counter 0)
 
-(defvar-local auto-save-async-buffer-file-name nil)
+(defvar-local auto-save-async--buffer-file-name nil)
 
 (defun auto-save-async-save ()
   "Auto save asynchronously."
@@ -73,7 +73,7 @@ is used internally."
                       (= (point-max) (point-min))
                       find-file-literally
                       buffer-read-only
-                      (null auto-save-async-buffer-file-name))
+                      (null auto-save-async--buffer-file-name))
                (buffer-substring-no-properties (point-max) (point-min)))))))
     (when str
       (message "Auto save async...")
@@ -81,7 +81,7 @@ is used internally."
        `(lambda ()
           (with-temp-buffer
             (insert ,str)
-            (write-file ,(eval auto-save-async-buffer-file-name))))
+            (write-file ,(eval auto-save-async--buffer-file-name))))
        `(lambda (result)
           (with-current-buffer ,(current-buffer)
             (setq buffer-saved-size ,(length str)))
