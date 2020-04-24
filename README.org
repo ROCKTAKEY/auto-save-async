@@ -1,0 +1,8 @@
+[[https://github.com/ROCKTAKEY/auto-save-async][https://img.shields.io/github/tag/ROCKTAKEY/auto-save-async.svg?style=flat-square]]
+[[file:LICENSE][https://img.shields.io/github/license/ROCKTAKEY/auto-save-async.svg?style=flat-square]]
+[[https://github.com/ROCKTAKEY/auto-save-async/actions][https://img.shields.io/github/workflow/status/ROCKTAKEY/auto-save-async/CI/master.svg?style=flat-square]]
+* Auto save  asynchronously.
+
+* How to Use?
+* License
+  This package is licensed by GPLv3. See [[file:LICENSE][LICENSE]].
