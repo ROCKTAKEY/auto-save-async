@@ -1,12 +1,12 @@
-;;; auto-save-async.el --- Auto save asynchronously.  -*- lexical-binding: t; -*-
+;;; auto-save-async.el --- Auto save asynchronously  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020  ROCKTAKEY
 
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: files
 
-;; Version: 1.0.5
-;; Package-Requires: ((async "1.9.4") (switch-buffer-functions "0.0.1"))
+;; Version: 1.0.7
+;; Package-Requires: ((emacs "24.3") (async "1.9.4") (switch-buffer-functions "0.0.1"))
 
 ;; URL: https://github.com/ROCKTAKEY/auto-save-async
 
@@ -142,6 +142,7 @@ If other non-nil value, show all messages."
 
 ;; Inner functions
 (defun auto-save-async--count-and-save ()
+  "Count input events and save if it's over `auto-save-async-interval'."
   (when (and (not (eq auto-save-async-interval 0))
              (>= (setq auto-save-async--counter (1+ auto-save-async--counter))
                  auto-save-async-interval))
@@ -149,6 +150,7 @@ If other non-nil value, show all messages."
     (setq auto-save-async--counter 0)))
 
 (defun auto-save-async--switch-buffer (before _)
+  "Run `auto-save-async-save' after `switch-buffer' from BEFORE."
   (when auto-save-async-save-when-switch-buffer
     (with-current-buffer before
       (auto-save-async-save))))
