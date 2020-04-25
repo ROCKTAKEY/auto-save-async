@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: files
 
-;; Version: 1.0.0
+;; Version: 1.0.1
 ;; Package-Requires: ((async "1.9.4") (switch-buffer-functions "0.0.1"))
 
 ;; URL: https://github.com/ROCKTAKEY/auto-save-async
@@ -139,20 +139,22 @@ is used internally."
 ;;;###autoload
 (define-minor-mode auto-save-async-mode
   "Auto save asynchronously."
-  :lighter "AS-async"
+  nil
+  "AS-async"
+  nil
   :group 'auto-save-async
   :global t
   (if auto-save-async-mode
       (progn
         (let* ((lexical-binding nil))
-          (setq auto-save-async-buffer-file-name
+          (setq auto-save-async--buffer-file-name
                 (let ((auto-save-file-name-transforms
                        auto-save-async-file-name-transforms))
                   (make-auto-save-file-name))))
         (setq
          auto-save-async--timer
          (unless (eq 0 auto-save-async-timeout)
-          (run-with-idle-timer auto-save-async-timeout #'auto-save-async-save)))
+          (run-with-idle-timer auto-save-async-timeout t #'auto-save-async-save)))
         (add-hook 'post-command-hook #'auto-save-async--count-and-save)
         (add-hook 'switch-buffer-functions  #'auto-save-async--switch-buffer))
     (unless auto-save-async--timer (cancel-timer auto-save-async--timer))
