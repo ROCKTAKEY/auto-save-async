@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: files
 
-;; Version: 1.0.3
+;; Version: 1.0.4
 ;; Package-Requires: ((async "1.9.4") (switch-buffer-functions "0.0.1"))
 
 ;; URL: https://github.com/ROCKTAKEY/auto-save-async
@@ -137,20 +137,20 @@ If other non-nil value, show all messages."
             (if result
                 (display-warning 'auto-save-async :error result)
               (unless (eq auto-save-async-show-message 'error-only)
-               (message "Auto save async done.")))))))))
+                (message "Auto save async done.")))))))))
 
 ;; Inner functions
 (defun auto-save-async--count-and-save ()
   (when (and (not (eq auto-save-async-interval 0))
-         (>= (setq auto-save-async--counter (1+ auto-save-async--counter))
-            auto-save-async-interval))
+             (>= (setq auto-save-async--counter (1+ auto-save-async--counter))
+                 auto-save-async-interval))
     (auto-save-async-save)
     (setq auto-save-async--counter 0)))
 
 (defun auto-save-async--switch-buffer (before _)
   (when auto-save-async-save-when-switch-buffer
-   (with-current-buffer before
-    (auto-save-async-save))))
+    (with-current-buffer before
+      (auto-save-async-save))))
 
 
 ;;;###autoload
@@ -171,7 +171,7 @@ If other non-nil value, show all messages."
         (setq
          auto-save-async--timer
          (unless (eq 0 auto-save-async-timeout)
-          (run-with-idle-timer auto-save-async-timeout t #'auto-save-async-save)))
+           (run-with-idle-timer auto-save-async-timeout t #'auto-save-async-save)))
         (add-hook 'post-command-hook #'auto-save-async--count-and-save)
         (add-hook 'switch-buffer-functions  #'auto-save-async--switch-buffer))
     (unless auto-save-async--timer (cancel-timer auto-save-async--timer))
