@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: files
 
-;; Version: 1.0.1
+;; Version: 1.0.2
 ;; Package-Requires: ((async "1.9.4") (switch-buffer-functions "0.0.1"))
 
 ;; URL: https://github.com/ROCKTAKEY/auto-save-async
@@ -114,13 +114,18 @@ is used internally."
       (message "Auto save async...")
       (async-start
        `(lambda ()
-          (with-temp-buffer
-            (insert ,str)
-            (write-file ,(eval auto-save-async--buffer-file-name))))
+          (condition-case err
+              (with-temp-buffer
+                (insert ,str)
+                (write-file ,(eval auto-save-async--buffer-file-name))
+                nil)
+            (error-message-string err)))
        `(lambda (result)
           (with-current-buffer ,(current-buffer)
             (setq buffer-saved-size ,(length str)))
-          (message "Auto save async done. %S" result))))))
+          (if result
+              (display-warning 'auto-save-async :error result)
+            (message "Auto save async done.")))))))
 
 ;; Inner functions
 (defun auto-save-async--count-and-save ()
