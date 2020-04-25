@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: files
 
-;; Version: 1.0.4
+;; Version: 1.0.5
 ;; Package-Requires: ((async "1.9.4") (switch-buffer-functions "0.0.1"))
 
 ;; URL: https://github.com/ROCKTAKEY/auto-save-async
@@ -113,6 +113,7 @@ If other non-nil value, show all messages."
            (save-excursion
              (unless (or
                       (not (buffer-file-name))
+                      (not (buffer-modified-p))
                       (= (point-max) (point-min))
                       find-file-literally
                       buffer-read-only
