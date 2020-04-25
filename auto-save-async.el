@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: files
 
-;; Version: 1.0.2
+;; Version: 1.0.3
 ;; Package-Requires: ((async "1.9.4") (switch-buffer-functions "0.0.1"))
 
 ;; URL: https://github.com/ROCKTAKEY/auto-save-async
@@ -86,6 +86,14 @@ is used internally."
   :group 'auto-save-async
   :type 'boolean)
 
+(defcustom auto-save-async-show-message t
+  "Show message when auto save async is started and finished.
+If nil, show no message including error.
+If symbol `error-only', show error messages only.
+If other non-nil value, show all messages."
+  :group 'auto-save-async
+  :type  '(choice (const t) (const error-only) (const nil)))
+
 
 ;; Inner vars
 (defvar auto-save-async--timer nil)
@@ -111,7 +119,9 @@ is used internally."
                       (null auto-save-async--buffer-file-name))
                (buffer-substring-no-properties (point-max) (point-min)))))))
     (when str
-      (message "Auto save async...")
+      (when (and auto-save-async-show-message
+                 (not (eq auto-save-async-show-message 'error-only)))
+        (message "Auto save async..."))
       (async-start
        `(lambda ()
           (condition-case err
@@ -123,9 +133,11 @@ is used internally."
        `(lambda (result)
           (with-current-buffer ,(current-buffer)
             (setq buffer-saved-size ,(length str)))
-          (if result
-              (display-warning 'auto-save-async :error result)
-            (message "Auto save async done.")))))))
+          (when auto-save-async-show-message
+            (if result
+                (display-warning 'auto-save-async :error result)
+              (unless (eq auto-save-async-show-message 'error-only)
+               (message "Auto save async done.")))))))))
 
 ;; Inner functions
 (defun auto-save-async--count-and-save ()
