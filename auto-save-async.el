@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: files
 
-;; Version: 1.0.8
+;; Version: 1.0.9
 ;; Package-Requires: ((emacs "24.3") (async "1.9.4") (switch-buffer-functions "0.0.1"))
 
 ;; URL: https://github.com/ROCKTAKEY/auto-save-async
@@ -160,7 +160,7 @@ If other non-nil value, show all messages."
 (define-minor-mode auto-save-async-mode
   "Auto save asynchronously."
   nil
-  "AS-async"
+  " AS-async"
   nil
   :group 'auto-save-async
   :global t
