@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: files
 
-;; Version: 1.1.1
+;; Version: 1.2.0
 ;; Package-Requires: ((emacs "24.3") (async "1.9.4") (switch-buffer-functions "0.0.1"))
 
 ;; URL: https://github.com/ROCKTAKEY/auto-save-async
@@ -94,6 +94,13 @@ If other non-nil value, show all messages."
   :group 'auto-save-async
   :type  '(choice (const t) (const error-only) (const nil)))
 
+(defcustom auto-save-async-all-buffer nil
+  "Auto save all on the time.
+However, this is not needed, because auto save also occurs before `switch-to-buffer',
+if `auto-save-async-save-when-switch-buffer' is set to non-nil."
+  :group 'auto-save-async
+  :type 'boolean)
+
 
 ;; Inner vars
 (defvar auto-save-async--timer nil)
@@ -114,7 +121,21 @@ If other non-nil value, show all messages."
 
 ;;;###autoload
 (defun auto-save-async-save ()
-  "Auto save asynchronously."
+  "Auto save asynchronously.
+If `auto-save-async-all-buffer' is set to non-nil,
+all the buffers are saved."
+  (interactive)
+  (if auto-save-async-all-buffer
+      (save-current-buffer
+        (mapc (lambda (buffer)
+                (set-buffer buffer)
+                (auto-save-async-save-current-buffer))
+              (buffer-list)))
+    (auto-save-async-save-current-buffer)))
+
+;;;###autoload
+(defun auto-save-async-save-current-buffer ()
+  "Auto save asynchronously on current buffer."
   (interactive)
   (auto-save-async--set-buffer-file-name)
   (let ((str
@@ -163,7 +184,7 @@ If other non-nil value, show all messages."
   "Run `auto-save-async-save' after `switch-buffer' from BEFORE."
   (when (and auto-save-async-save-when-switch-buffer (bufferp before))
     (with-current-buffer before
-      (auto-save-async-save))))
+      (auto-save-async-save-current-buffer))))
 
 
 ;;;###autoload
