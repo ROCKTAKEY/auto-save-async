@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: files
 
-;; Version: 1.1.0
+;; Version: 1.1.1
 ;; Package-Requires: ((emacs "24.3") (async "1.9.4") (switch-buffer-functions "0.0.1"))
 
 ;; URL: https://github.com/ROCKTAKEY/auto-save-async
@@ -161,7 +161,7 @@ If other non-nil value, show all messages."
 
 (defun auto-save-async--switch-buffer (before _)
   "Run `auto-save-async-save' after `switch-buffer' from BEFORE."
-  (when (and auto-save-async-save-when-switch-buffer (stringp before))
+  (when (and auto-save-async-save-when-switch-buffer (bufferp before))
     (with-current-buffer before
       (auto-save-async-save))))
 
