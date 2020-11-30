@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: files
 
-;; Version: 1.0.9
+;; Version: 1.1.0
 ;; Package-Requires: ((emacs "24.3") (async "1.9.4") (switch-buffer-functions "0.0.1"))
 
 ;; URL: https://github.com/ROCKTAKEY/auto-save-async
@@ -103,10 +103,20 @@ If other non-nil value, show all messages."
 (defvar-local auto-save-async--buffer-file-name nil)
 
 
+(defun auto-save-async--set-buffer-file-name ()
+  "Set `auto-save-async--buffer-file-name' in current buffer."
+  (unless (eq 'disabled auto-save-async--buffer-file-name)
+   (let* ((lexical-binding nil))
+    (setq auto-save-async--buffer-file-name
+          (let ((auto-save-file-name-transforms
+                 auto-save-async-file-name-transforms))
+            (or (ignore-errors (make-auto-save-file-name)) 'disabled))))))
+
 ;;;###autoload
 (defun auto-save-async-save ()
   "Auto save asynchronously."
   (interactive)
+  (auto-save-async--set-buffer-file-name)
   (let ((str
          (save-restriction
            (widen)
@@ -117,7 +127,7 @@ If other non-nil value, show all messages."
                       (= (point-max) (point-min))
                       find-file-literally
                       buffer-read-only
-                      (null auto-save-async--buffer-file-name))
+                      (eq 'disabled auto-save-async--buffer-file-name))
                (buffer-substring-no-properties (point-max) (point-min)))))))
     (when str
       (when (and auto-save-async-show-message
@@ -166,11 +176,6 @@ If other non-nil value, show all messages."
   :global t
   (if auto-save-async-mode
       (progn
-        (let* ((lexical-binding nil))
-          (setq auto-save-async--buffer-file-name
-                (let ((auto-save-file-name-transforms
-                       auto-save-async-file-name-transforms))
-                  (make-auto-save-file-name))))
         (setq
          auto-save-async--timer
          (unless (eq 0 auto-save-async-timeout)
