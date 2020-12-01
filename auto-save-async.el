@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: files
 
-;; Version: 1.2.0
+;; Version: 1.3.0
 ;; Package-Requires: ((emacs "24.3") (async "1.9.4") (switch-buffer-functions "0.0.1"))
 
 ;; URL: https://github.com/ROCKTAKEY/auto-save-async
@@ -86,13 +86,13 @@ is used internally."
   :group 'auto-save-async
   :type 'boolean)
 
-(defcustom auto-save-async-show-message t
+(defcustom auto-save-async-show-message 2
   "Show message when auto save async is started and finished.
 If nil, show no message including error.
 If symbol `error-only', show error messages only.
-If other non-nil value, show all messages."
+If number, show messages for NUMBER seconds."
   :group 'auto-save-async
-  :type  '(choice (const t) (const error-only) (const nil)))
+  :type  '(choice number (const error-only) (const nil)))
 
 (defcustom auto-save-async-all-buffer nil
   "Auto save all on the time.
@@ -153,7 +153,8 @@ all the buffers are saved."
     (when str
       (when (and auto-save-async-show-message
                  (not (eq auto-save-async-show-message 'error-only)))
-        (message "Auto save async..."))
+        (with-temp-message "Auto save async..."
+                  (sit-for auto-save-async-show-message)))
       (async-start
        `(lambda ()
           (condition-case err
@@ -169,7 +170,8 @@ all the buffers are saved."
             (if result
                 (display-warning 'auto-save-async :error result)
               (unless (eq auto-save-async-show-message 'error-only)
-                (message "Auto save async done.")))))))))
+                (with-temp-message "Auto save async done."
+                  (sit-for auto-save-async-show-message))))))))))
 
 ;; Inner functions
 (defun auto-save-async--count-and-save ()
