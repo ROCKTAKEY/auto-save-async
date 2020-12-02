@@ -1,0 +1,4 @@
+(source gnu melpa)
+
+(package (auto-save-async
+          (recipe . (:fetcher github :repo "ROCKTAKEY/auto-save-async"))))
