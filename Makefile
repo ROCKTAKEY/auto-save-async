@@ -26,5 +26,7 @@ test-all:
 	${MAKE} ert
 	${MAKE} clean
 
+lint:
+	keg lint
 
-.PHONY: ert travis compile clean  test-all
+.PHONY: ert travis compile clean  test-all lint
