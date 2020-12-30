@@ -5,8 +5,8 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: files
 
-;; Version: 1.3.2
-;; Package-Requires: ((emacs "24.3") (async "1.9.4") (switch-buffer-functions "0.0.1"))
+;; Version: 1.3.3
+;; Package-Requires: ((emacs "24.4") (async "1.9.4") (switch-buffer-functions "0.0.1"))
 
 ;; URL: https://github.com/ROCKTAKEY/auto-save-async
 
