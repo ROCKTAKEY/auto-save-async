@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: files
 
-;; Version: 1.3.3
+;; Version: 1.3.4
 ;; Package-Requires: ((emacs "24.4") (async "1.9.4") (switch-buffer-functions "0.0.1"))
 
 ;; URL: https://github.com/ROCKTAKEY/auto-save-async
@@ -117,7 +117,18 @@ if `auto-save-async-save-when-switch-buffer' is set to non-nil."
     (setq auto-save-async--buffer-file-name
           (let ((auto-save-file-name-transforms
                  auto-save-async-file-name-transforms))
-            (or (ignore-errors (make-auto-save-file-name)) 'disabled))))))
+            (if (buffer-file-name)
+                (or (ignore-errors (make-auto-save-file-name)) 'disabled)
+              (let ((list auto-save-file-name-transforms)
+                    (filename (file-name-nondirectory (make-auto-save-file-name)))
+                    result)
+                (while (and list (not result))
+                  (if (string-match (car (car list)) filename)
+                      (setq result (replace-match (cadr (car list)) t nil
+                                                  filename)
+                            uniq (car (cddr (car list)))))
+                  (setq list (cdr list)))
+                (expand-file-name filename result))))))))
 
 ;;;###autoload
 (defun auto-save-async-save ()
